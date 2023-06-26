@@ -5,7 +5,7 @@ class Inmate {
 		inmate = await conn.db("Prison_VMS").collection("inmate")
 	}
 
-	static async register(inmateno, firstname, lastname,  age, gender) {
+	static async register(inmateno, firstname, lastname,  age, gender, guilty) {
 		// TODO: Check if Inmateno exists
 		const res = await inmate.findOne({ Inmateno: inmateno })
 
@@ -18,27 +18,29 @@ class Inmate {
 							"Firstname": firstname,
 							"Lastname": lastname,
 							"Age": age,
-							"Gender": gender,						
+							"Gender": gender,
+							"Guilty": guilty,						
             });
             return { status: "Succesfully register inmate"}
 	}
 
-		static async update(Inmateno,Firstname, Lastname,  age, gender){
-				inmate.updateOne({Inmateno: Inmateno},{$set:{
-              "Firstname": Firstname,
-              "Lastname": Lastname,
+		static async update(inmateno, firstname, lastname,  age, gender, guilty){
+				inmate.updateOne({Inmateno: inmateno},{$set:{
+              "Firstname": firstname,
+              "Lastname": lastname,
               "Age": age,
-              "Gender": gender,		}})
+              "Gender": gender,		
+			  "Guilty": guilty, }})
 							return { status: "Information updated"}
 		}
 
-		static async delete(Inmateno) {
-			inmate.deleteOne({Inmateno: Inmateno})
+		static async delete(inmateno) {
+			inmate.deleteOne({Inmateno: inmateno})
 			return { status: "Inmate deleted!" }
 		}
 
-    static async find(Inmateno) {
-			return inmate.findOne({Inmateno: Inmateno})
+    static async find(inmateno) {
+			return inmate.findOne({Inmateno: inmateno})
 		}
 
 	}
