@@ -1,36 +1,14 @@
 const MongoClient = require("mongodb").MongoClient;
 const User = require("./user");
-const Visitor = require("./visitor");
+const Visitor = require("./visitor.js");
 const Inmate = require("./inmate");
 const Visitorlog = require("./visitorlog")
 
-/*
-MongoClient.connect(
-	// TODO: Connection 
-	"mongodb+srv://m001-student:m001-mongodb-basics@sandbox.can3v.mongodb.net",
-	//"mongodb+srv://cluster0.mapnkyy.mongodb.net/",
-    { useNewUrlParser: true },
-).catch(err => {
-	console.error(err.stack)
-	process.exit(1)
-}).then(async client => {
-	console.log('Connected to MongoDB');
-	User.injectDB(client);
-	Visitor.injectDB(client);
-	Inmate.injectDB(client);
-	Visitorlog.injectDB(client);
-})
-*/
 
 MongoClient.connect(
 	// TODO: Connection 
-	"mongodb+srv://m001-student:Dan_2218@sandbox.yldg8.mongodb.net/    ",
-    //"mongodb+srv: //danial:danial123@cluster0.mapnkyy.mongodb.net/",
-    //"mongodb://atlas-sql-6493f6089d8861784cbdfd0c-hjeaj.a.query.mongodb.net/benr2423?ssl=true&authSource=admin",
-	//"mongodb+srv://danial:danial123@cluster0.mapnkyy.mongodb.net/",
-    //"mongodb+srv://danial:danial123@cluster0.mapnkyy.mongodb.net/      "
-    //"mongodb+srv://danial:danial123@cluster0.mapnkyy.mongodb.net/?retryWrites=true&w=majority",
-    { useNewUrlParser: true },
+	"mongodb+srv://m001-student:Dan_2218@sandbox.yldg8.mongodb.net/    ", 
+	{ useNewUrlParser: true },
 ).catch(err => {
 	console.error(err.stack)
 	process.exit(1)
@@ -133,10 +111,11 @@ app.post('/login/user', async (req, res) => {
 		return
 	}
 
+
 	res.status(200).json({
 		username: user.username,
 		name: user.Name,
-		officerNo: user.officerNo,
+		officerno: user.officerno,
 		rank: user.Rank,
 		phone: user.Phone,
 		token: generateAccessToken({ rank: user.Rank })
@@ -171,9 +150,7 @@ app.post('/login/visitor', async (req, res) => {
 	console.log(req.body);
 
 	let user = await Visitor.login(req.body.username, req.body.password);
-	// console.log(user);
-	// console.log(user.status);
-	
+
 	if (user.status == ("invalid username" || "invalid password")) {
 		res.status(401).send("invalid username or password");
 		return
@@ -184,11 +161,6 @@ app.post('/login/visitor', async (req, res) => {
 		name: user.Name,
 		age: user.Age,
 		gender: user.Gender,
-	// 	address: {
-	// 		road:	user.Road,
-	// 		zipcode: user.Zipcode,
-	// 		state: user.State
-	// },
 		relation: user.Relation,
 		token: generateAccessToken({ username: user.username })
 	});
@@ -212,8 +184,8 @@ app.post('/login/visitor', async (req, res) => {
  *                 type: string
  *               name: 
  *                 type: string
- *               officerNo:
- *                 type: integer
+ *               officerno:
+ *                 type: string
  *               rank:
  *                 type: string
  *               phone:
@@ -227,7 +199,7 @@ app.post('/login/visitor', async (req, res) => {
 
 app.post('/register/user', async (req, res) => {
 	console.log(req.body);
-
+	
 	const reg = await User.register(req.body.username, req.body.password, req.body.name, req.body.officerno, req.body.rank, req.body.phone);
 	console.log(reg);
 
@@ -256,16 +228,9 @@ app.post('/register/user', async (req, res) => {
  *                 type: integer
  *               gender:
  *                 type: string
- *               address:
- *                 type: object
- *                 properties:
- *                   Road:
- *                     type: string
- *                   Zipcode:
- *                     type: integer
- *                   State:
- *                     type: string
  *               relation:
+ *                 type: string
+ *               telno:
  *                 type: string
  *     responses:
  *       200:
@@ -277,9 +242,9 @@ app.post('/register/user', async (req, res) => {
 app.post('/register/visitor', async (req, res) => {
 	console.log(req.body);
 
-	const reg = await Visitor.register(req.body.username, req.body.password, req.body.name, req.body.age, req.body.gender, req.body.road, req.body.zipcode, req.body.state, req.body.relation);
-	console.log(reg);
-
+		const reg = await Visitor.register(req.body.username, req.body.password, req.body.name, req.body.age, req.body.gender, req.body.relation, req.body.telno);
+		console.log(reg);
+	
 	res.json({reg})
 })
 
@@ -299,24 +264,23 @@ app.use(verifyToken);
  *           schema: 
  *             type: object
  *             properties:
- *               Logno:
+ *               logno:
  *                 type: integer
  *               username: 
  *                 type: string
- *               InmateNo: 
- *                 type: integer
- *               Dateofvisit:
+ *               inmateno: 
  *                 type: string
- *               Timein:
+ *               dateofvisit:
  *                 type: string
- *               Timeout:
+ *               timein:
  *                 type: string
- *               Purpose:
+ *               timeout:
  *                 type: string
- *               OfficerNo:
- *                 type: integer
- *               Insertby:
+ *               purpose:
  *                 type: string
+ *               officerno:
+ *                 type: string
+
  *     responses:
  *       200:
  *         description: Successful registered
@@ -328,8 +292,8 @@ app.use(verifyToken);
  app.post('/register/visitorlog', async (req, res) => {
 	console.log(req.body);
 
-	if (req.user.rank == "officer"){
-		const reg = await Visitorlog.register(req.body.logno, req.body.username, req.body.inmateno, req.body.dateofvisit, req.body.timein, req.body.timeout, req.body.purpose, req.body.officerno, req.body.insertby);
+	if (req.user.rank == "officer" || "security"){
+		const reg = await Visitorlog.register(req.body.logno, req.body.username, req.body.inmateno, req.body.dateofvisit, req.body.timein, req.body.timeout, req.body.purpose, req.body.officerno);
 		res.status(200).send(reg)
 	}
 	else{
@@ -351,15 +315,17 @@ app.use(verifyToken);
  *           schema: 
  *             type: object
  *             properties:
- *               Inmateno: 
- *                 type: integer
- *               Firstname: 
+ *               inmateno: 
  *                 type: string
- *               Lastname: 
+ *               firstname: 
+ *                 type: string
+ *               lastname: 
  *                 type: string
  *               age:
  *                 type: integer
  *               gender:
+ *                 type: string
+ *               guilty:
  *                 type: string
  *              
  *     responses:
@@ -373,7 +339,7 @@ app.use(verifyToken);
 	console.log(req.body)
 
 	if (req.user.rank == "officer"){
-		const reg = await Inmate.register(req.body.inmateno, req.body.firstname, req.body.lastname, req.body.age, req.body.gender );
+		const reg = await Inmate.register(req.body.inmateno, req.body.firstname, req.body.lastname, req.body.age, req.body.gender, req.body.guilty );
 		res.status(200).send(reg)
 	}
 	else{
@@ -400,6 +366,10 @@ app.use(verifyToken);
  *                 type: string
  *               name: 
  *                 type: string
+ *               officerno:
+ *                 type: string
+ *               rank:
+ *                 type: string
  *               phone:
  *                 type: string
  *     responses:
@@ -413,7 +383,7 @@ app.patch('/user/update', async (req, res) => {
 	console.log(req.body);
 
 	if (req.user.rank == "officer"){
-		const update = await User.update(req.body.username, req.body.name, req.body.phone);
+		const update = await User.update(req.body.username, req.body.name, req.body.officerno, req.body.rank, req.body.phone);
 		res.status(200).send(update)
 	}
 	else{
@@ -446,16 +416,9 @@ app.patch('/user/update', async (req, res) => {
  *                 type: integer
  *               gender:
  *                 type: string
- *               address:
- *                 type: object
- *                 properties:
- *                   Road:
- *                     type: string
- *                   Zipcode:
- *                     type: integer
- *                   State:
- *                     type: string
  *               relation:
+ *                 type: string
+ *               telno:
  *                 type: string
  *     responses:
  *       200:
@@ -467,8 +430,8 @@ app.patch('/user/update', async (req, res) => {
 app.patch('/visitor/update', async (req, res) => {
 	console.log(req.body);
 
-	if (req.user.username == req.body.username){
-		const update = await Visitor.update(req.body.username, req.body.name, req.body.age, req.body.gender, req.body.road, req.body.zipcode, req.body.state, req.body.relation);
+	if (req.user.rank == "officer"){
+		const update = await Visitor.update(req.body.username, req.body.name, req.body.age, req.body.gender, req.body.relation, req.body.telno);
 		res.status(200).send(update)
 	}
 	else{
@@ -490,15 +453,17 @@ app.patch('/visitor/update', async (req, res) => {
  *           schema: 
  *             type: object
  *             properties:
- *               Inmateno: 
- *                 type: integer
- *               Firstname: 
+ *               inmateno: 
  *                 type: string
- *               Lastname: 
+ *               firstname: 
+ *                 type: string
+ *               lastname: 
  *                 type: string
  *               age:
  *                 type: integer
  *               gender:
+ *                 type: string
+ *               guilty:
  *                 type: string
  *     responses:
  *       200:
@@ -510,7 +475,7 @@ app.patch('/visitor/update', async (req, res) => {
  app.patch('/inmate/update', async (req, res) => {
 	console.log(req.body);
 	if (req.user.rank == "officer"){
-		const update = await Inmate.update( req.body.Inmateno, req.body.Firstname, req.body.Lastname, req.body.age, req.body.gender);
+		const update = await Inmate.update( req.body.inmateno, req.body.firstname, req.body.lastname, req.body.age, req.body.gender, req.body.guilty);
 		res.status(200).send(update)
 	}
 	else{
@@ -532,20 +497,19 @@ app.patch('/visitor/update', async (req, res) => {
  *           schema: 
  *             type: object
  *             properties:
- *               Logno:
+ *               logno:
  *                 type: integer
- *               Dateofvisit:
+ *               dateofvisit:
  *                 type: string
- *               Timein:
+ *               timein:
  *                 type: string
- *               Timeout:
+ *               timeout:
  *                 type: string
- *               Purpose:
+ *               purpose:
  *                 type: string
- *               OfficerNo:
- *                 type: integer
- *               Insertby:
+ *               officerno:
  *                 type: string
+
  *     responses:
  *       200:
  *         description: Successful updated
@@ -557,7 +521,7 @@ app.patch('/visitor/update', async (req, res) => {
 	console.log(req.body);
 
 	if (req.user.username == req.body.username){
-		const update = await Visitorlog.update(req.body.logno, req.body.dateofvisit, req.body.timein, req.body.timeout, req.body.purpose, req.body.officerno, req.body.insertby);
+		const update = await Visitorlog.update(req.body.logno, req.body.dateofvisit, req.body.timein, req.body.timeout, req.body.purpose, req.body.officerno);
 		res.status(200).send(update)
 	}
 	else{
@@ -647,8 +611,8 @@ app.delete('/delete/visitor', async (req, res) => {
  *           schema: 
  *             type: object
  *             properties:
- *               Inmateno: 
- *                 type: integer
+ *               inmateno: 
+ *                 type: string
  *               
  *     responses:
  *       200:
@@ -659,7 +623,7 @@ app.delete('/delete/visitor', async (req, res) => {
 
  app.delete('/delete/inmate', async (req, res) => {
 	if (req.user.rank == "officer"){
-		const del = await Inmate.delete(req.body.Inmateno)
+		const del = await Inmate.delete(req.body.inmateno)
 		res.status(200).send(del)
 	}
 	else{
@@ -681,7 +645,7 @@ app.delete('/delete/visitor', async (req, res) => {
  *           schema: 
  *             type: object
  *             properties:
- *               Logno: 
+ *               logno: 
  *                 type: integer
  *               
  *     responses:
@@ -692,8 +656,8 @@ app.delete('/delete/visitor', async (req, res) => {
  */
 
  app.delete('/delete/visitorlog', async (req, res) => {
-	if (req.user.rank == "officer"){
-		const del = await Visitorlog.delete(req.body.Logno)
+	if (req.user.rank == "officer" || "security"){
+		const del = await Visitorlog.delete(req.body.logno)
 		res.status(200).send(del)
 	}
 	else{
