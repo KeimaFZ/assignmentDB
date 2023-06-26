@@ -56,9 +56,11 @@ class User {
 				
 	}
 	
-		static async update(username, name, phone){
+		static async update(username, name, officerno, rank, phone){
 				users.updateOne({username:username},{$set:{
 				"Name": name,
+				"OfficerNo": officerno,
+				"Rank": rank,
 				"Phone": phone,}});
 				return { status: "Information updated" }
 		}
