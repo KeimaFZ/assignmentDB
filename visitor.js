@@ -14,7 +14,7 @@ class Visitor {
 	 * @param {*} password 
 	 * @param {*} phone 
 	 */
-	static async register(username, password, name, age, gender, Road, Zipcode, State, relation) {
+	static async register(username, password, name, age, gender, relation, telno) {
 		// TODO: Check if username exists
 		const res = await visitors.findOne({ username: username })
 
@@ -34,11 +34,8 @@ class Visitor {
 							"Name": name,
 							"Age": age,
 							"Gender": gender,
-							"Address":{
-								"Road":Road,
-								"Zipcode":Zipcode,
-								"State":State},
-              "Relation": relation
+              "Relation": relation,
+			  "PhoneNo": telno
             });
 			return { status: "Succesfully register Visitor"}
 	}
@@ -62,16 +59,14 @@ class Visitor {
 				
 	}
 	
-		static async update(username, name, age, gender, road, zipcode, state, relation){
+		static async update(username, name, age, gender, relation,telno){
 				visitors.updateOne({username:username},{$set:{
 				"Name": name,
 				"Age": age,
 				"Gender": gender,
-				"Address":{
-					"Road":road,
-					"Zipcode":zipcode,
-					"State":state},
-        "Relation": relation}})
+        "Relation": relation,
+		"PhoneNo": telno
+	}})
 				return { status: "Information updated"}
 		}
 
