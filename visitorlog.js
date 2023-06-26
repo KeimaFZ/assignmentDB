@@ -5,7 +5,7 @@ class Visitorlog {
 		visitorlog = await conn.db("Prison_VMS").collection("visitorlog")
 	}
 
-	static async register(logno, username, inmateno, dateofvisit, timein, timeout, purpose, officerno, insertby) {
+	static async register(logno, username, inmateno, dateofvisit, timein, timeout, purpose, officerno) {
 		// TODO: Check if Logno exists
 		const res = await visitorlog.findOne({ Logno: logno })
 
@@ -22,29 +22,29 @@ class Visitorlog {
 							"Timein": timein,
 							"Timeout": timeout,			
               "Purpose": purpose,
-              "OfficeNo":officerno,
-              "Insertby":insertby			
+              "Insert By (OfficeNo)":officerno
+			
             });
             return { status: "Succesfully register visitorlog"}
 	}
 
-		static async update(Logno, Dateofvisit,Timein,Timeout,Purpose,Officerno,Insertby){
-				return visitorlog.updateOne({ Logno: Logno },{$set:{
-							"Dateofvisit": Dateofvisit,
-							"Timein": Timein,
-							"Timeout": Timeout,			
-              "Purpose": Purpose,
-              "OfficeNo":Officerno,
-              "Insertby":Insertby				}})
+		static async update(logno,  dateofvisit, timein, timeout, purpose, officerno){
+				return visitorlog.updateOne({ Logno: logno },{$set:{
+							"Dateofvisit": dateofvisit,
+							"Timein": timein,
+							"Timeout": timeout,			
+              "Purpose": purpose,
+              "Insert By (OfficeNo)":officerno
+		}})
 		}
 
-		static async delete(Logno) {
-			visitorlog.deleteOne({Logno: Logno})
+		static async delete(logno) {
+			visitorlog.deleteOne({Logno: logno})
 			return { status: "VisitorLog deleted!" }
 		}
 
-    static async find( Logno ) {
-			return visitorlog.findOne({Logno: Logno})
+    static async find( logno ) {
+			return visitorlog.findOne({Logno: logno})
 		}
 
 	}
